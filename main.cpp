@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "send/send.h"
+#include "utils/udp_utils.h"
 
 int send_wrapper(char* file_path) {
     /*
@@ -8,19 +9,13 @@ int send_wrapper(char* file_path) {
      * @param file_path Path to the file that is to be sent.
      */
 
-
-    send::Send* test = new send::Send(file_path);
-
-    test->check_for_file_validity();
-
-
-    //TODO: make check that file is actual file/actually exists
-    //TODO: request udp socket
-
     return 0;
 }
 
 int receive_wrapper() {
+
+    //TODO: make buffer parameter
+    utils::udp_utils::create_udp_server_socket(8000);
     return 0;
 }
 

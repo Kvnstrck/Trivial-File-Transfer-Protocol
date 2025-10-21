@@ -9,11 +9,12 @@
 namespace utils {
     class udp_utils {
     public:
-        static int create_udp_server_socket(uint32_t);
 
-        static void create_udp_client_socket();
+        static int create_udp_socket(uint32_t);
 
-        static sockaddr_in receive_udp_message(int, char*);
+        static sockaddr_in receive_udp_message(int, char *);
+
+        static void send_udp_message(int, const char *, int, const char *);
     };
 } // utils
 

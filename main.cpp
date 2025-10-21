@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "utils/tftp_utils.h"
 #include "utils/udp_utils.h"
 
 int send_wrapper(char *file_path) {
@@ -7,18 +8,25 @@ int send_wrapper(char *file_path) {
      * Manages the creation and handling of sending a file to a tftp receiver.
      * @param file_path Path to the file that is to be sent.
      */
+    const char* message = "TEST MESSAGE";
+    const char* ip = "127.0.0.1";
+
+    int port = 8001;
+
+    int sock_fd = utils::udp_utils::create_udp_socket(port);
+
+    utils::udp_utils::send_udp_message(sock_fd,message,8000,ip);
 
     return 0;
 }
 
 int receive_wrapper() {
-
     //TODO: make buffer size vary depending on message size
 
     //create buffer for UDP data to be put into
     char buffer[1024];
 
-    int server_socket_fd = utils::udp_utils::create_udp_server_socket(8000);
+    int server_socket_fd = utils::udp_utils::create_udp_socket(8000);
 
     sockaddr_in client_information = utils::udp_utils::receive_udp_message(server_socket_fd, buffer);
 

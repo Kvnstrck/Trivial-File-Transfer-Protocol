@@ -5,35 +5,37 @@
 #include "udp_utils.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
 namespace utils {
     /**
-     * Creates a new udp server socket.
-     * @param port the port to use for the server socket
+     * Creates a new UDP socket.
+     * @param port the port that the UDP socket should operate on.
+     * @return a file descriptor that points to the created UDP socket.
      */
-    int udp_utils::create_udp_server_socket(const u_int32_t port) {
+    int udp_utils::create_udp_socket(const u_int32_t port) {
         int sock_fd;
 
-        // create udp server socket, exit if syscall fails
+        // create udp socket, exit if syscall fails
         if ((sock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             std::perror("socket creation failed");
             std::exit(EXIT_FAILURE);
         }
 
         // create address data structure and fill in address information
-        sockaddr_in server_information = {};
+        sockaddr_in socket_information = {};
 
         //fill in server information
-        server_information.sin_addr.s_addr = INADDR_ANY; //set socket to all available interfaces
-        server_information.sin_family = AF_INET; //internet domain socket family for IPv4
-        server_information.sin_port = htons(port); //port in network byte order
+        socket_information.sin_addr.s_addr = INADDR_ANY; //set socket to all available interfaces
+        socket_information.sin_family = AF_INET; //internet domain socket family for IPv4
+        socket_information.sin_port = htons(port); //port in network byte order
 
         // Bind the socket with the server address, exit if syscall fails
-        if (bind(sock_fd, reinterpret_cast<const struct sockaddr *>(&server_information),
-                 sizeof(server_information)) < 0) {
+        if (bind(sock_fd, reinterpret_cast<const struct sockaddr *>(&socket_information),
+                 sizeof(socket_information)) < 0) {
             perror("bind failed");
             exit(EXIT_FAILURE);
         }
@@ -44,18 +46,48 @@ namespace utils {
         return sock_fd;
     }
 
-    sockaddr_in udp_utils::receive_udp_message(int socket_fd, char *buffer) {
+    /**
+     * Listens to the specified socket and upon datagram receival, writes the received message into the buffer.
+     * @param socket_fd The file descriptor of the socket to listen to.
+     * @param buffer The buffer to write the received message into.
+     * @return The socket information of the datagram sender.
+     */
+    sockaddr_in udp_utils::receive_udp_message(const int socket_fd, char *buffer) {
+        //create object for client information
         sockaddr_in client_information = {};
         socklen_t client_information_length = sizeof(client_information);
 
         //wait for the UDP packet to arrive and write it in buffer
-        const int n = recvfrom(socket_fd, (char *)buffer, 1024,
-                MSG_WAITALL, reinterpret_cast<struct sockaddr *>(&client_information),
-                &client_information_length);
+        const ssize_t n = recvfrom(socket_fd, buffer, 1024,
+                                   MSG_WAITALL, reinterpret_cast<struct sockaddr *>(&client_information),
+                                   &client_information_length);
 
+        //add string terminator to buffer
         buffer[n] = '\0';
 
-
         return client_information;
+    }
+
+    /**
+     * Sends the message stored in the buffer from the given socket to the given ip/port combination.
+     * @param sock_fd The socket to send the datagram from.
+     * @param buffer The buffer holding the data to send.
+     * @param port The port of the target socket.
+     * @param ip The IP of the target socket.
+     */
+    void udp_utils::send_udp_message(const int sock_fd, const char *buffer, const int port, const char *ip) {
+        sockaddr_in server_information = {};
+
+        server_information.sin_family = AF_INET;
+        server_information.sin_port = htons(port);
+
+        if (inet_pton(AF_INET, ip, &server_information.sin_addr) <= 0) {
+            printf("Invalid address/ Address not supported \n");
+            return;
+        }
+
+        sendto(sock_fd, buffer, strlen(buffer),
+               MSG_CONFIRM, reinterpret_cast<sockaddr *>(&server_information),
+               sizeof(server_information));
     }
 } // utils

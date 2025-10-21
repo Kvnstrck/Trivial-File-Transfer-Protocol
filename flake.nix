@@ -22,6 +22,7 @@
             catch2
             cmake
             libgcc
+            man-pages
           ];
         };
       };

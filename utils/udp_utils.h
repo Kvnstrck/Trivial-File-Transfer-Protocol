@@ -7,6 +7,15 @@
 #include <netinet/in.h>
 
 namespace utils {
+    /**
+     * This enum holds all parameters for UDP sockets and their utils.
+     */
+    enum UDP_PROTOCOL_PARAMETERS{
+        TIMEOUT_SECONDS = 1000,
+        TIMEOUT_MICROSECONDS = 0,
+        RECEIVE_BUFFER_SIZE=1024
+    };
+
     class udp_utils {
     public:
 

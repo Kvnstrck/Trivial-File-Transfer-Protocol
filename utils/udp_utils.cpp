@@ -7,8 +7,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <thread>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <cerrno>
 
 namespace utils {
     /**
@@ -53,14 +55,33 @@ namespace utils {
      * @return The socket information of the datagram sender.
      */
     sockaddr_in udp_utils::receive_udp_message(const int socket_fd, char *buffer) {
-        //create object for client information
+        //create an object for client information
         sockaddr_in client_information = {};
         socklen_t client_information_length = sizeof(client_information);
 
-        //wait for the UDP packet to arrive and write it in buffer
-        const ssize_t n = recvfrom(socket_fd, buffer, 1024,
+        //prepare socket options for timeout handling
+        struct timeval timeout_parameters{};
+        timeout_parameters.tv_sec = static_cast<int>(UDP_PROTOCOL_PARAMETERS::TIMEOUT_SECONDS);
+        timeout_parameters.tv_usec = static_cast<int>(UDP_PROTOCOL_PARAMETERS::TIMEOUT_MICROSECONDS);
+
+        //enable the timeout option for socket, throw error if syscall fails
+        if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout_parameters, sizeof(timeout_parameters)) < 0) {
+            throw std::runtime_error("Failed to set socket timeout");
+        }
+
+        //wait for the UDP packet to arrive and write it in the buffer
+        const ssize_t n = recvfrom(socket_fd, buffer, UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE,
                                    MSG_WAITALL, reinterpret_cast<struct sockaddr *>(&client_information),
                                    &client_information_length);
+
+        //check if the receiving of UDP datagram failed
+        if (n < 0) {
+            //check for blocking or unavailable resource
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                //TODO: when protocol is usable enable timeouts and implement sending the packets again
+                std::cout << "TIMEOUT HAPPEND!!!";
+            }
+        }
 
         //add string terminator to buffer
         buffer[n] = '\0';

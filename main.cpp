@@ -11,9 +11,8 @@ int send_wrapper(char *file_path) {
     const char* message = "TEST MESSAGE";
     const char* ip = "127.0.0.1";
 
-    int port = 8001;
 
-    int sock_fd = utils::udp_utils::create_udp_socket(port);
+    int sock_fd = utils::udp_utils::create_udp_socket(8001);
 
     utils::udp_utils::send_udp_message(sock_fd,message,8000,ip);
 

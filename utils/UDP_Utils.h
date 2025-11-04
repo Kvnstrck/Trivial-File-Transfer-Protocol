@@ -10,15 +10,14 @@ namespace utils {
     /**
      * This enum holds all parameters for UDP sockets and their utils.
      */
-    enum UDP_PROTOCOL_PARAMETERS{
+    enum UDP_PROTOCOL_PARAMETERS {
         TIMEOUT_SECONDS = 1000,
         TIMEOUT_MICROSECONDS = 0,
-        RECEIVE_BUFFER_SIZE=1024
+        RECEIVE_BUFFER_SIZE = 1024
     };
 
-    class udp_utils {
+    class UDP_Utils {
     public:
-
         static int create_udp_socket(uint32_t);
 
         static sockaddr_in receive_udp_message(int, char *);

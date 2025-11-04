@@ -4,7 +4,11 @@ project(TFTP_Implementation)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(tftp main.cpp
-        utils/udp_utils.cpp
-        utils/udp_utils.h
-        utils/tftp_utils.h
+        utils/UDP_Utils.cpp
+        utils/UDP_Utils.h
+        utils/TFTP_Utils.h
+        Packet_Builder.cpp
+        Packet_Builder.h
+        TFTP_Connection_State.cpp
+        TFTP_Connection_State.h
 )

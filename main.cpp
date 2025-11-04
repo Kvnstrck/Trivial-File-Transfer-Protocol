@@ -1,7 +1,9 @@
 #include <iostream>
 
-#include "utils/tftp_utils.h"
-#include "utils/udp_utils.h"
+
+#include "TFTP_Connection_State.h"
+#include "utils/TFTP_Utils.h"
+#include "utils/UDP_Utils.h"
 
 int send_wrapper(char *file_path) {
     /*
@@ -11,10 +13,9 @@ int send_wrapper(char *file_path) {
     const char* message = "TEST MESSAGE";
     const char* ip = "127.0.0.1";
 
+    const int sock_fd = utils::UDP_Utils::create_udp_socket(8001);
 
-    int sock_fd = utils::udp_utils::create_udp_socket(8001);
-
-    utils::udp_utils::send_udp_message(sock_fd,message,8000,ip);
+    utils::UDP_Utils::send_udp_message(sock_fd,message,8000,ip);
 
     return 0;
 }
@@ -23,11 +24,11 @@ int receive_wrapper() {
     //TODO: make buffer size vary depending on message size
 
     //create buffer for UDP data to be put into
-    char buffer[1024];
+    char buffer[utils::UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE];
 
-    int server_socket_fd = utils::udp_utils::create_udp_socket(8000);
+    int server_socket_fd = utils::UDP_Utils::create_udp_socket(8000);
 
-    sockaddr_in client_information = utils::udp_utils::receive_udp_message(server_socket_fd, buffer);
+    sockaddr_in client_information = utils::UDP_Utils::receive_udp_message(server_socket_fd, buffer);
 
     printf("Client : %s\n", buffer);
 
@@ -35,9 +36,7 @@ int receive_wrapper() {
 }
 
 int main(int argc, char *argv[]) {
-    std::string mode = argv[1];
-
-    if (mode == "send") {
+    if (std::string mode = argv[1]; mode == "send") {
         char *file_path = argv[2];
         send_wrapper(file_path);
     } else if (mode == "receive") {

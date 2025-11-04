@@ -2,7 +2,7 @@
 // Created by kecs on 15.10.25.
 //
 
-#include "udp_utils.h"
+#include "UDP_Utils.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -18,7 +18,7 @@ namespace utils {
      * @param port the port that the UDP socket should operate on.
      * @return a file descriptor that points to the created UDP socket.
      */
-    int udp_utils::create_udp_socket(const u_int32_t port) {
+    int UDP_Utils::create_udp_socket(const u_int32_t port) {
         int sock_fd;
 
         // create udp socket, exit if syscall fails
@@ -54,7 +54,7 @@ namespace utils {
      * @param buffer The buffer to write the received message into.
      * @return The socket information of the datagram sender.
      */
-    sockaddr_in udp_utils::receive_udp_message(const int socket_fd, char *buffer) {
+    sockaddr_in UDP_Utils::receive_udp_message(const int socket_fd, char *buffer) {
         //create an object for client information
         sockaddr_in client_information = {};
         socklen_t client_information_length = sizeof(client_information);
@@ -96,7 +96,7 @@ namespace utils {
      * @param port The port of the target socket.
      * @param ip The IP of the target socket.
      */
-    void udp_utils::send_udp_message(const int sock_fd, const char *buffer, const int port, const char *ip) {
+    void UDP_Utils::send_udp_message(const int sock_fd, const char *buffer, const int port, const char *ip) {
         sockaddr_in server_information = {};
 
         server_information.sin_family = AF_INET;

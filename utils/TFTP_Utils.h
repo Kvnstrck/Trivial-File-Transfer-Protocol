@@ -14,6 +14,11 @@ namespace utils {
         ERROR
     };
 
+    enum TFTP_TRANSMISSION_TYPE {
+        READ_TRANSMISSION,
+        WRITE_TRANSMISSION
+    };
+
     //TODO: create method that converts binary to hex for payload building
 }
 

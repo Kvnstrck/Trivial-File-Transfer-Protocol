@@ -7,6 +7,8 @@
 #include <string>
 #include <utility>
 
+#include "utils/TFTP_Utils.h"
+
 
 class TFTP_Connection_State {
 private:
@@ -21,6 +23,8 @@ public:
                                              transmission_mode(std::move(transmission_mode)), block_number(block_number),
                                              block_data(std::move(block_data)) {
     }
+
+    [[nodiscard]] bool establish_connection_client(utils::TFTP_TRANSMISSION_TYPE transmission, int port) const;
 
     [[nodiscard]] std::string get_file_name() const;
 

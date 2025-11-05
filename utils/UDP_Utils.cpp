@@ -19,6 +19,7 @@ namespace utils {
      * @return a file descriptor that points to the created UDP socket.
      */
     int UDP_Utils::create_udp_socket(const u_int32_t port) {
+        //TODO: create dynamic port number choosing
         int sock_fd;
 
         // create udp socket, exit if syscall fails
@@ -41,9 +42,6 @@ namespace utils {
             perror("bind failed");
             exit(EXIT_FAILURE);
         }
-
-        //add string terminator to buffer
-        //TODO: when file is put together, this is unnecessary
 
         return sock_fd;
     }
@@ -79,7 +77,7 @@ namespace utils {
             //check for blocking or unavailable resource
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 //TODO: when protocol is usable enable timeouts and implement sending the packets again
-                std::cout << "TIMEOUT HAPPEND!!!";
+                throw std::runtime_error("Timeout happened while waiting for incoming packet!\n");
             }
         }
 

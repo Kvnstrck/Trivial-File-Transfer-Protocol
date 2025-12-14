@@ -14,18 +14,18 @@ int send_wrapper(char *argv[]) {
 
     //TODO: build wrapper for connection establishment
 
-    const char* message = "TEST MESSAGE";
+    const auto message = "TEST MESSAGE";
 
-    auto connection_state = new TFTP_Connection_State("file","netascii",0,message);
+    const auto connection_state = new TFTP_Connection_State("file", "netascii", 0, message);
 
-    connection_state->establish_connection_client(utils::READ_TRANSMISSION,10070);
+    connection_state->establish_connection_client(utils::READ_TRANSMISSION, 10070);
 
     free(connection_state);
     return 0;
 }
 
 int receive_wrapper() {
-    //TODO: make buffer size vary depending on message size
+    //TODO: readjust buffer size for running state
 
     //create buffer for UDP data to be put into
     char buffer[utils::UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE];
@@ -36,7 +36,7 @@ int receive_wrapper() {
 
     sleep(10);
 
-    utils::UDP_Utils::send_udp_message(server_socket_fd,"ACK",10070,"127.0.0.1");
+    utils::UDP_Utils::send_udp_message(server_socket_fd, "ACK", 10070, "127.0.0.1");
 
     printf("Client : %s\n", buffer);
 

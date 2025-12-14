@@ -76,7 +76,6 @@ namespace utils {
         if (n < 0) {
             //check for blocking or unavailable resource
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                //TODO: when protocol is usable enable timeouts and implement sending the packets again
                 throw std::runtime_error("Timeout happened while waiting for incoming packet!\n");
             }
         }

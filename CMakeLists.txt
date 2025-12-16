@@ -7,8 +7,8 @@ add_executable(tftp main.cpp
         utils/UDP_Utils.cpp
         utils/UDP_Utils.h
         utils/TFTP_Utils.h
-        Packet_Builder.cpp
-        Packet_Builder.h
+        Packet_Helper.cpp
+        Packet_Helper.h
         TFTP_Connection_State.cpp
         TFTP_Connection_State.h
 )

@@ -2,11 +2,12 @@
 // Created by kecs on 24.10.25.
 //
 
-#include "Packet_Builder.h"
+#include "Packet_Helper.h"
 
+#include <stdexcept>
 #include <string>
 
-std::string Packet_Builder::build_packet(const utils::TFTP_MESSAGE_TYPE message_type,
+std::string Packet_Helper::build_packet(const utils::TFTP_MESSAGE_TYPE message_type,
                                          const TFTP_Connection_State &connection_state_state) {
     switch (message_type) {
         case utils::READ_REQUEST:
@@ -24,7 +25,7 @@ std::string Packet_Builder::build_packet(const utils::TFTP_MESSAGE_TYPE message_
     }
 }
 
-std::string Packet_Builder::build_rreq_packet(const TFTP_Connection_State &connection_state) {
+std::string Packet_Helper::build_rreq_packet(const TFTP_Connection_State &connection_state) {
     //build RREQ packet as per definition in the RFC
     /*2 bytes     string    1 byte     string   1 byte
     *       ------------------------------------------------
@@ -48,7 +49,7 @@ std::string Packet_Builder::build_rreq_packet(const TFTP_Connection_State &conne
     return packet;
 }
 
-std::string Packet_Builder::build_wreq_packet(const TFTP_Connection_State &connection_state) {
+std::string Packet_Helper::build_wreq_packet(const TFTP_Connection_State &connection_state) {
     //build WREQ packet as per definition in the RFC
     /*2 bytes     string    1 byte     string   1 byte
     *       ------------------------------------------------
@@ -72,7 +73,7 @@ std::string Packet_Builder::build_wreq_packet(const TFTP_Connection_State &conne
     return packet;
 }
 
-std::string Packet_Builder::build_data_packet(const TFTP_Connection_State &connection_state) {
+std::string Packet_Helper::build_data_packet(const TFTP_Connection_State &connection_state) {
     //build DATA packet as per definition in the RFC
     std::string packet;
 
@@ -86,7 +87,7 @@ std::string Packet_Builder::build_data_packet(const TFTP_Connection_State &conne
     return packet;
 }
 
-std::string Packet_Builder::build_ack_packet(const TFTP_Connection_State &connection_state) {
+std::string Packet_Helper::build_ack_packet(const TFTP_Connection_State &connection_state) {
     //build ACK packet as per definition in the RFC
     std::string packet;
 
@@ -98,7 +99,7 @@ std::string Packet_Builder::build_ack_packet(const TFTP_Connection_State &connec
     return packet;
 }
 
-std::string Packet_Builder::build_error_packet(const TFTP_Connection_State &connection_state) {
+std::string Packet_Helper::build_error_packet(const TFTP_Connection_State &connection_state) {
     //build ERROR packet as per definition in the RFC
     std::string packet;
 
@@ -108,4 +109,27 @@ std::string Packet_Builder::build_error_packet(const TFTP_Connection_State &conn
     packet.append("TBD");
 
     return packet;
+}
+
+/**
+ * Parses the given packet string into a TFTP_Connection_State object.
+ * @param packet The string representation of the packet to parse.
+ * @return a TFTP_Connection_State object representing the parsed packet.
+ * @throws std::runtime_error when the first character of the parsed packet is not a valid opcode.
+ */
+TFTP_Connection_State Packet_Parser::parse_packet(const std::string &packet) {
+    switch (packet[0]) {
+        case '1':
+            return parse_rreq_packet(packet);
+        case '2':
+            return parse_wreq_packet(packet);
+        case '3':
+            return parse_ack_packet(packet);
+        case '4':
+            return parse_data_packet(packet);
+        case '5':
+            return parse_error_packet(packet);
+        default:
+            throw std::runtime_error("Undefined opcode found while parsing packet.");
+    }
 }

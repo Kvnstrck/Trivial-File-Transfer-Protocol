@@ -9,35 +9,41 @@
 #include <stdexcept>
 #include <utility>
 
-#include "Packet_Builder.h"
+#include "Packet_Helper.h"
 #include "utils/TFTP_Utils.h"
 #include "utils/UDP_Utils.h"
 
 int TFTP_Connection_State::establish_connection_client(const utils::TFTP_TRANSMISSION_TYPE transmission,
                                                        const int client_port) const {
+    //create client socket on specified port
     const int sock_fd = utils::UDP_Utils::create_udp_socket(client_port);
 
-    send_message(transmission, sock_fd,"127.0.0.1",10069);
+    //send the initial connection message
+    std::string response = send_connection_message(transmission, sock_fd, "127.0.0.1", 10069);
+
+    //TODO: refactor to send first message(read/write)
+
+    //TODO: build method for data packet sending
 
     return sock_fd;
 }
 
-std::string TFTP_Connection_State::send_message(const utils::TFTP_TRANSMISSION_TYPE transmission_type, const int socket_fd,
-    const std::string &receiver_ip, const uint16_t receiver_port) const{
-
+std::string TFTP_Connection_State::send_connection_message(const utils::TFTP_TRANSMISSION_TYPE transmission_type,
+                                                const int socket_fd,
+                                                const std::string &receiver_ip, const uint16_t receiver_port) const {
     //build the read/write packet
     const utils::TFTP_MESSAGE_TYPE message_type = transmission_type == utils::READ_TRANSMISSION
                                                       ? utils::TFTP_MESSAGE_TYPE::READ_REQUEST
                                                       : utils::TFTP_MESSAGE_TYPE::WRITE_REQUEST;
 
-    //message sending and retransmission logic goes here
-    const std::string packet = Packet_Builder::build_packet(message_type, *this);
 
-    // wait and receive the ACK packet
+    const std::string packet = Packet_Helper::build_packet(message_type, *this);
+
     char buffer[utils::UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE];
 
-    while (true) {
+    for (int i = 0; i < utils::MAXIMUM_RETRANSMISSION_COUNTER; i++) {
         utils::UDP_Utils::send_udp_message(socket_fd, packet.c_str(), receiver_port, receiver_ip.c_str());
+        //TODO: clean logging
         try {
             utils::UDP_Utils::receive_udp_message(socket_fd, buffer);
             auto end = std::chrono::system_clock::now();
@@ -52,11 +58,23 @@ std::string TFTP_Connection_State::send_message(const utils::TFTP_TRANSMISSION_T
         }
         break;
     }
-    //message sending and retransmission logic ends here
+
+    TFTP_Connection_State response_state = Packet_Parser::parse_packet(response);
+
+    if (transmission_type == utils::READ_TRANSMISSION) {
+
+        //get opcode of parsed packet
+
+        //read transmission, response should be a data packet
+        //TODO: parse the packet for
+    }else {
+        //write transmission, response should be an ACK packet
+    }
+
 
     printf("Server ACK: %s\n", buffer);
 
-    return  "make this the buffer";
+    return std::string(buffer);
 }
 
 std::string TFTP_Connection_State::get_file_name() const {

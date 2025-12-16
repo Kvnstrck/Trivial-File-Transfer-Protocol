@@ -6,6 +6,7 @@
 #define TFTP_CONNECTION_STATE_H
 #include <string>
 #include <utility>
+#include <bits/stdint-uintn.h>
 
 #include "utils/TFTP_Utils.h"
 
@@ -26,7 +27,7 @@ public:
 
     int establish_connection_client(utils::TFTP_TRANSMISSION_TYPE transmission, int client_port) const;
 
-    [[nodiscard]] std::string send_message(utils::TFTP_TRANSMISSION_TYPE transmission_type, int socket_fd, const std::string &receiver_ip, __uint16_t receiver_port) const;
+    [[nodiscard]] std::string send_connection_message(utils::TFTP_TRANSMISSION_TYPE transmission_type, int socket_fd, const std::string &receiver_ip, __uint16_t receiver_port) const;
 
     [[nodiscard]] std::string get_file_name() const;
 

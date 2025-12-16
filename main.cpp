@@ -7,12 +7,12 @@
 #include "utils/UDP_Utils.h"
 
 int send_wrapper(char *argv[]) {
-    /*
+    /**
      * Manages the creation and handling of sending a file to a tftp receiver.
      * @param file_path Path to the file that is to be sent.
      */
 
-    //TODO: build wrapper for connection establishment
+    //TODO: build wrapper for connection management(first for establishment and then for sending/receiving data)
 
     const auto message = "TEST MESSAGE";
 
@@ -25,7 +25,7 @@ int send_wrapper(char *argv[]) {
 }
 
 int receive_wrapper() {
-    //TODO: readjust buffer size for running state
+    //TODO: readjust buffer size for running state, NS3 experiment
 
     //create buffer for UDP data to be put into
     char buffer[utils::UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE];
@@ -44,7 +44,7 @@ int receive_wrapper() {
 }
 
 int main(int argc, char *argv[]) {
-    if (std::string mode = argv[1]; mode == "send") {
+    if (const std::string mode = argv[1]; mode == "send") {
         send_wrapper(argv);
     } else if (mode == "receive") {
         receive_wrapper();

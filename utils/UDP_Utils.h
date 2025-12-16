@@ -13,7 +13,8 @@ namespace utils {
     enum UDP_PROTOCOL_PARAMETERS {
         TIMEOUT_SECONDS = 5,
         TIMEOUT_MICROSECONDS = 0,
-        RECEIVE_BUFFER_SIZE = 1024
+        RECEIVE_BUFFER_SIZE = 1024,
+        MAXIMUM_RETRANSMISSION_COUNTER = 10
     };
 
     class UDP_Utils {

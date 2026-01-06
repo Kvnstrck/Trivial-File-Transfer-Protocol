@@ -18,7 +18,7 @@ int send_wrapper(char *argv[]) {
 
     const auto connection_state = new TFTP_Connection_State("file", "netascii", 0, message);
 
-    connection_state->establish_connection_client(utils::READ_TRANSMISSION, 10070);
+    connection_state->establish_connection_client(utils::WRITE_TRANSMISSION, 10070);
 
     free(connection_state);
     return 0;
@@ -34,11 +34,12 @@ int receive_wrapper() {
 
     sockaddr_in client_information = utils::UDP_Utils::receive_udp_message(server_socket_fd, buffer);
 
-    sleep(10);
+    //force timeout
+    //sleep(10);
 
     utils::UDP_Utils::send_udp_message(server_socket_fd, "ACK", 10070, "127.0.0.1");
 
-    printf("Client : %s\n", buffer);
+    printf("Message from Client: %s\n", buffer);
 
     return 0;
 }

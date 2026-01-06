@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "Packet_Helper.h"
+#include "Packet.h"
 #include "utils/TFTP_Utils.h"
 #include "utils/UDP_Utils.h"
 
@@ -30,14 +30,20 @@ int TFTP_Connection_State::establish_connection_client(const utils::TFTP_TRANSMI
 
 std::string TFTP_Connection_State::send_connection_message(const utils::TFTP_TRANSMISSION_TYPE transmission_type,
                                                 const int socket_fd,
-                                                const std::string &receiver_ip, const uint16_t receiver_port) const {
+                                                const std::string &receiver_ip, const uint16_t receiver_port) {
     //build the read/write packet
-    const utils::TFTP_MESSAGE_TYPE message_type = transmission_type == utils::READ_TRANSMISSION
+    const utils::TFTP_MESSAGE_TYPE message_type = (transmission_type == utils::READ_TRANSMISSION)
                                                       ? utils::TFTP_MESSAGE_TYPE::READ_REQUEST
                                                       : utils::TFTP_MESSAGE_TYPE::WRITE_REQUEST;
 
+    Packet* request_packet;
+    if (message_type==utils::READ_REQUEST) {
+        request_packet = new RREQ_Packet("EXAMPLE_FILE_NAME","netascii");
+    }else {
+        request_packet = new WREQ_Packet("EXAMPLE_FILE_NAME","netascii");
+    }
 
-    const std::string packet = Packet_Helper::build_packet(message_type, *this);
+    const std::string packet = request_packet->toString();
 
     char buffer[utils::UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE];
 
@@ -59,20 +65,7 @@ std::string TFTP_Connection_State::send_connection_message(const utils::TFTP_TRA
         break;
     }
 
-    TFTP_Connection_State response_state = Packet_Parser::parse_packet(response);
-
-    if (transmission_type == utils::READ_TRANSMISSION) {
-
-        //get opcode of parsed packet
-
-        //read transmission, response should be a data packet
-        //TODO: parse the packet for
-    }else {
-        //write transmission, response should be an ACK packet
-    }
-
-
-    printf("Server ACK: %s\n", buffer);
+    printf("Message from Server : %s\n", buffer);
 
     return std::string(buffer);
 }

@@ -68,7 +68,7 @@ namespace utils {
         }
 
         //wait for the UDP packet to arrive and write it in the buffer
-        const ssize_t n = recvfrom(socket_fd, buffer, UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE,
+        const ssize_t n = recvfrom(socket_fd, buffer, UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE,
                                    MSG_WAITALL, reinterpret_cast<struct sockaddr *>(&client_information),
                                    &client_information_length);
 

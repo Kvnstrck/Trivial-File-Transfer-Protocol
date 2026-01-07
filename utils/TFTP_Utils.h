@@ -19,7 +19,7 @@ namespace utils {
         WRITE_TRANSMISSION
     };
 
-    //TODO: create method that converts binary to hex for payload building
+    //TODO: create method that converts binary to hex for data payload building
 }
 
 #endif //TFTP_UTILS_H

@@ -13,17 +13,32 @@ namespace utils {
     enum UDP_PROTOCOL_PARAMETERS {
         TIMEOUT_SECONDS = 5,
         TIMEOUT_MICROSECONDS = 0,
-        RECEIVE_BUFFER_SIZE = 1024,
+        MESSAGE_BUFFER_SIZE = 1024,
         MAXIMUM_RETRANSMISSION_COUNTER = 10
     };
 
     class UDP_Utils {
     public:
-        static int create_udp_socket(uint32_t);
+        /**
+         * Creates a UDP socket at the given port.
+         * @return The socket file descriptor of the created socket.
+         */
+        static int create_udp_socket(uint32_t port);
 
-        static sockaddr_in receive_udp_message(int, char *);
+        /**
+         * Waits for an incoming UDP message and returns the client information
+         * @return The socket information of the messages' sender.
+         */
+        static sockaddr_in receive_udp_message(int socket_fd, char *buffer);
 
-        static void send_udp_message(int, const char *, int, const char *);
+        /**
+         * Send a message via UDP to the specified IPv4/port combination.
+         * @param sock_fd The socket file descriptor of the UDP socket used to send the message.
+         * @param buffer Buffer holding the message.
+         * @param port The destination UDP port.
+         * @param ip The destination IPv4 address.
+         */
+        static void send_udp_message(int sock_fd, const char *buffer, int port, const char *ip);
     };
 } // utils
 

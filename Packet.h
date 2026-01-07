@@ -6,7 +6,7 @@
 #define PACKET_BUILDER_H
 #include <utility>
 
-#include "TFTP_Connection_State.h"
+#include "TFTP_Connection.h"
 
 class Packet {
 private:
@@ -97,18 +97,18 @@ public:
 
 class Packet_Parser {
 public:
-    static TFTP_Connection_State parse_packet(const std::string &);
+    static TFTP_Connection parse_packet(const std::string &);
 
 private:
-    static TFTP_Connection_State parse_rreq_packet(const std::string &);
+    static TFTP_Connection parse_rreq_packet(const std::string &);
 
-    static TFTP_Connection_State parse_wreq_packet(const std::string &);
+    static TFTP_Connection parse_wreq_packet(const std::string &);
 
-    static TFTP_Connection_State parse_data_packet(const std::string &);
+    static TFTP_Connection parse_data_packet(const std::string &);
 
-    static TFTP_Connection_State parse_ack_packet(const std::string &);
+    static TFTP_Connection parse_ack_packet(const std::string &);
 
-    static TFTP_Connection_State parse_error_packet(const std::string &);
+    static TFTP_Connection parse_error_packet(const std::string &);
 };
 
 #endif //PACKET_BUILDER_H

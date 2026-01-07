@@ -9,6 +9,6 @@ add_executable(tftp main.cpp
         utils/TFTP_Utils.h
         Packet.cpp
         Packet.h
-        TFTP_Connection_State.cpp
-        TFTP_Connection_State.h
+        TFTP_Connection.cpp
+        TFTP_Connection.h
 )

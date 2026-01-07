@@ -2,53 +2,37 @@
 #include <unistd.h>
 
 
-#include "TFTP_Connection_State.h"
+#include "TFTP_Connection.h"
 #include "utils/TFTP_Utils.h"
 #include "utils/UDP_Utils.h"
 
-int send_wrapper(char *argv[]) {
-    /**
-     * Manages the creation and handling of sending a file to a tftp receiver.
-     * @param file_path Path to the file that is to be sent.
-     */
+/**
+* Manages the creation and handling of sending a file to a tftp client.
+* @param file_path Path to the file that is to be sent.
+*/
+int client_wrapper(char *argv[]) {
+    const auto connection_state = new TFTP_Connection("EXAMPLE_FILE", "netascii", 0);
 
-    //TODO: build wrapper for connection management(first for establishment and then for sending/receiving data)
-
-    const auto message = "TEST MESSAGE";
-
-    const auto connection_state = new TFTP_Connection_State("file", "netascii", 0, message);
-
-    connection_state->establish_connection_client(utils::WRITE_TRANSMISSION, 10070);
+    int client_fd = connection_state->start_transmission_client(utils::WRITE_TRANSMISSION, 10070);
 
     free(connection_state);
     return 0;
 }
 
-int receive_wrapper() {
-    //TODO: readjust buffer size for running state, NS3 experiment
+int server_wrapper() {
+    const auto connection_state = new TFTP_Connection("FILE_NOT_SET", "TRANSMISSION_MODE_NOT_SET", 0);
 
-    //create buffer for UDP data to be put into
-    char buffer[utils::UDP_PROTOCOL_PARAMETERS::RECEIVE_BUFFER_SIZE];
-
-    int server_socket_fd = utils::UDP_Utils::create_udp_socket(10069);
-
-    sockaddr_in client_information = utils::UDP_Utils::receive_udp_message(server_socket_fd, buffer);
-
-    //force timeout
-    //sleep(10);
-
-    utils::UDP_Utils::send_udp_message(server_socket_fd, "ACK", 10070, "127.0.0.1");
-
-    printf("Message from Client: %s\n", buffer);
+    int server_fd = connection_state->start_transmission_server();
 
     return 0;
 }
 
 int main(int argc, char *argv[]) {
+    //TODO: improve parsing of cmd line arguments
     if (const std::string mode = argv[1]; mode == "send") {
-        send_wrapper(argv);
+        client_wrapper(argv);
     } else if (mode == "receive") {
-        receive_wrapper();
+        server_wrapper();
     } else {
         std::cout << "Invalid mode given, please use either \'send\' or \'receive\' mode.\n";
         return 1;

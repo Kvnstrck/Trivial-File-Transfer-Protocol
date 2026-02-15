@@ -52,7 +52,7 @@ namespace utils {
      * @param buffer The buffer to write the received message into.
      * @return The socket information of the datagram sender.
      */
-    sockaddr_in UDP_Utils::receive_udp_message(const int socket_fd, char *buffer) {
+    u_int16_t UDP_Utils::receive_udp_message(const int socket_fd, char *buffer) {
         //create an object for client information
         sockaddr_in client_information = {};
         socklen_t client_information_length = sizeof(client_information);
@@ -83,7 +83,7 @@ namespace utils {
         //add string terminator to buffer
         buffer[n] = '\0';
 
-        return client_information;
+        return n;
     }
 
     /**

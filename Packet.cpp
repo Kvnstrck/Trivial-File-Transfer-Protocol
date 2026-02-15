@@ -25,10 +25,10 @@ std::string WREQ_Packet::toString() {
 WREQ_Packet::~WREQ_Packet() = default;
 
 std::string DATA_Packet::toString() {
-    const std::string padded_block_number = (block_number <= 256)
+    const std::string padded_block_number = (block_number < 256)
                                                 ? "0" + std::to_string(block_number)
                                                 : std::to_string(block_number);
-    return "0" + std::to_string(this->opcode) + std::to_string(block_number) + padded_block_number;
+    return "0" + std::to_string(this->opcode) + padded_block_number; // + this->block_data;
 }
 
 DATA_Packet::~DATA_Packet() = default;

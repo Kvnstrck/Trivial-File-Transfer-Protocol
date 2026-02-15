@@ -24,6 +24,9 @@
             libgcc
             man-pages
           ];
+	  shellHook = ''
+		code .
+		'';
         };
       };
     };

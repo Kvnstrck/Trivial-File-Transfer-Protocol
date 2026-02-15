@@ -27,9 +27,9 @@ namespace utils {
 
         /**
          * Waits for an incoming UDP message and returns the client information
-         * @return The socket information of the messages' sender.
+         * @return The number of bytes received.
          */
-        static sockaddr_in receive_udp_message(int socket_fd, char *buffer);
+        static u_int16_t receive_udp_message(int socket_fd, char *buffer);
 
         /**
          * Send a message via UDP to the specified IPv4/port combination.

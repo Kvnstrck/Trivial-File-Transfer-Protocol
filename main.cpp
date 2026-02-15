@@ -11,7 +11,7 @@
 * @param file_path Path to the file that is to be sent.
 */
 int client_wrapper(char *argv[]) {
-    const auto connection_state = new TFTP_Connection("EXAMPLE_FILE", "netascii", 0);
+    auto connection_state = new TFTP_Connection("EXAMPLE_FILE", "netascii", 0);
 
     int client_fd = connection_state->start_transmission_client(utils::WRITE_TRANSMISSION, 10070);
 

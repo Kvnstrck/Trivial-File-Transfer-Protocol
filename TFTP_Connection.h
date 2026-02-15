@@ -33,13 +33,13 @@ public:
      */
     [[nodiscard]]
 
-    int start_transmission_client(utils::TFTP_TRANSMISSION_TYPE transmission, int client_port) const;
+    int start_transmission_client(utils::TFTP_TRANSMISSION_TYPE transmission, int client_port);
 
     /**
      * Handles the connection of a new TFTP Server waiting for client connections.
      * @return The file descriptor of the UDP socket used for the connection.
      */
-    [[nodiscard]] int start_transmission_server() const;
+    [[nodiscard]] int start_transmission_server() ;
 
     /**
      * Performs a connection establishment as per RFC1350 for either a read-request or a write-request.
@@ -59,6 +59,15 @@ public:
      * @return The message the client responded with during the connection establishment.
      */
     [[nodiscard]] std::string perform_connection_establishment_server(int socket_fd) const;
+
+    /**
+     * Sends the next data packet and waits for the acknowledgement of the packet.
+     * @return Whether the packet was acknowledged correctly.
+     */
+    void perform_write_transmission(int sender_socket_fd,
+                                                  const std::string &receiver_ip, uint16_t receiver_port);
+
+    void ack_write_transmission(int socket_fd) ;
 
     [[nodiscard]] std::string get_file_name() const;
 

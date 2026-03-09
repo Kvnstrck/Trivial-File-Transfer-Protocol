@@ -23,6 +23,9 @@
             cmake
             libgcc
             man-pages
+            ninja
+
+            git 
           ];
 	  shellHook = ''
 		code .

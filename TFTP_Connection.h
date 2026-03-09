@@ -6,7 +6,6 @@
 #define TFTP_CONNECTION_STATE_H
 #include <string>
 #include <utility>
-#include <bits/stdint-uintn.h>
 
 #include "utils/TFTP_Utils.h"
 

@@ -12,18 +12,23 @@
 #include <arpa/inet.h>
 #include <cerrno>
 
-namespace utils {
+namespace utils
+{
+
+   
     /**
      * Creates a new UDP socket.
      * @param port the port that the UDP socket should operate on.
      * @return a file descriptor that points to the created UDP socket.
      */
-    int UDP_Utils::create_udp_socket(const u_int32_t port) {
-        //TODO: create dynamic port number choosing
+    int UDP_Utils::create_udp_socket(const u_int32_t port)
+    {
+        // TODO: create dynamic port number choosing
         int sock_fd;
 
         // create udp socket, exit if syscall fails
-        if ((sock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        if ((sock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+        {
             std::perror("socket creation failed");
             std::exit(EXIT_FAILURE);
         }
@@ -31,14 +36,15 @@ namespace utils {
         // create address data structure and fill in address information
         sockaddr_in socket_information = {};
 
-        //fill in server information
-        socket_information.sin_addr.s_addr = INADDR_ANY; //set socket to all available interfaces
-        socket_information.sin_family = AF_INET; //internet domain socket family for IPv4
-        socket_information.sin_port = htons(port); //port in network byte order
+        // fill in server information
+        socket_information.sin_addr.s_addr = INADDR_ANY; // set socket to all available interfaces
+        socket_information.sin_family = AF_INET;         // internet domain socket family for IPv4
+        socket_information.sin_port = htons(port);       // port in network byte order
 
         // Bind the socket with the server address, exit if syscall fails
         if (bind(sock_fd, reinterpret_cast<const struct sockaddr *>(&socket_information),
-                 sizeof(socket_information)) < 0) {
+                 sizeof(socket_information)) < 0)
+        {
             perror("bind failed");
             exit(EXIT_FAILURE);
         }
@@ -52,35 +58,39 @@ namespace utils {
      * @param buffer The buffer to write the received message into.
      * @return The socket information of the datagram sender.
      */
-    u_int16_t UDP_Utils::receive_udp_message(const int socket_fd, char *buffer) {
-        //create an object for client information
+    u_int16_t UDP_Utils::receive_udp_message(const int socket_fd, char *buffer)
+    {
+        // create an object for client information
         sockaddr_in client_information = {};
         socklen_t client_information_length = sizeof(client_information);
 
-        //prepare socket options for timeout handling
+        // prepare socket options for timeout handling
         struct timeval timeout_parameters{};
         timeout_parameters.tv_sec = static_cast<int>(UDP_PROTOCOL_PARAMETERS::TIMEOUT_SECONDS);
         timeout_parameters.tv_usec = static_cast<int>(UDP_PROTOCOL_PARAMETERS::TIMEOUT_MICROSECONDS);
 
-        //enable the timeout option for socket, throw error if syscall fails
-        if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout_parameters, sizeof(timeout_parameters)) < 0) {
+        // enable the timeout option for socket, throw error if syscall fails
+        if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout_parameters, sizeof(timeout_parameters)) < 0)
+        {
             throw std::runtime_error("Failed to set socket timeout");
         }
 
-        //wait for the UDP packet to arrive and write it in the buffer
+        // wait for the UDP packet to arrive and write it in the buffer
         const ssize_t n = recvfrom(socket_fd, buffer, UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE,
                                    MSG_WAITALL, reinterpret_cast<struct sockaddr *>(&client_information),
                                    &client_information_length);
 
-        //check if the receiving of UDP datagram failed
-        if (n < 0) {
-            //check for blocking or unavailable resource
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // check if the receiving of UDP datagram failed
+        if (n < 0)
+        {
+            // check for blocking or unavailable resource
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
                 throw std::runtime_error("Timeout happened while waiting for incoming packet!\n");
             }
         }
 
-        //add string terminator to buffer
+        // add string terminator to buffer
         buffer[n] = '\0';
 
         return n;
@@ -90,22 +100,25 @@ namespace utils {
      * Sends the message stored in the buffer from the given socket to the given ip/port combination.
      * @param sock_fd The socket to send the datagram from.
      * @param buffer The buffer holding the data to send.
+     * @param buffer_size The size of the buffer.
      * @param port The port of the target socket.
      * @param ip The IP of the target socket.
      */
-    void UDP_Utils::send_udp_message(const int sock_fd, const char *buffer, const int port, const char *ip) {
+    void UDP_Utils::send_udp_message(const int sock_fd, const std::vector<uint8_t> &buffer, const int port, const char *ip)
+    {
         sockaddr_in server_information = {};
 
         server_information.sin_family = AF_INET;
         server_information.sin_port = htons(port);
 
-        if (inet_pton(AF_INET, ip, &server_information.sin_addr) <= 0) {
+        if (inet_pton(AF_INET, ip, &server_information.sin_addr) <= 0)
+        {
             printf("Invalid address/ Address not supported \n");
             return;
         }
 
-        sendto(sock_fd, buffer, strlen(buffer),
-               MSG_CONFIRM, reinterpret_cast<sockaddr *>(&server_information),
+        sendto(sock_fd, buffer.data(), buffer.size(),
+               0, reinterpret_cast<sockaddr *>(&server_information),
                sizeof(server_information));
     }
 } // utils

@@ -5,6 +5,7 @@
 #ifndef UDP_UTILS_H
 #define UDP_UTILS_H
 #include <netinet/in.h>
+#include <vector>
 
 namespace utils {
     /**
@@ -38,7 +39,7 @@ namespace utils {
          * @param port The destination UDP port.
          * @param ip The destination IPv4 address.
          */
-        static void send_udp_message(int sock_fd, const char *buffer, int port, const char *ip);
+        static void send_udp_message(int sock_fd, const std::vector<uint8_t> &buffer, int port, const char *ip);
     };
 } // utils
 

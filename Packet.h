@@ -5,6 +5,7 @@
 #ifndef PACKET_BUILDER_H
 #define PACKET_BUILDER_H
 #include <utility>
+#include <vector>
 
 #include "TFTP_Connection.h"
 
@@ -13,12 +14,14 @@ private:
 
 
 public:
-    u_int8_t opcode;
+    u_int16_t opcode;
 
-    explicit Packet (const u_int8_t opcode): opcode(opcode) {
+    explicit Packet (const u_int16_t opcode): opcode(opcode) {
     }
 
     virtual std::string toString();
+
+    virtual std::vector<uint8_t> toByteArray();
 
     virtual ~Packet();
 };
@@ -34,6 +37,8 @@ public:
      * @param mode the transmission mode which should be used.
      */
     explicit RREQ_Packet (std::string file_name, std::string mode): Packet(1), file_name(std::move(file_name)), mode(std::move(mode)) {}
+
+    std::vector<uint8_t> toByteArray() override;
 
     std::string toString() override;
 
@@ -52,6 +57,8 @@ public:
      */
     explicit WREQ_Packet (std::string file_name, std::string mode): Packet(2), file_name(std::move(file_name)), mode(std::move(mode)) {}
 
+    std::vector<uint8_t> toByteArray() override;
+
     std::string toString() override;
 
     ~WREQ_Packet() override;
@@ -62,7 +69,9 @@ private:
     uint32_t block_number;
     std::string block_data;
 public:
-    explicit DATA_Packet (const u_int32_t block_number, std::string block_data): Packet(3), block_number(block_number), block_data(std::move(block_data)) {}
+    explicit DATA_Packet (const uint16_t block_number, std::string block_data): Packet(3), block_number(block_number), block_data(std::move(block_data)) {}
+
+    std::vector<uint8_t> toByteArray() override;
 
     std::string toString() override;
 
@@ -74,8 +83,10 @@ private:
     uint32_t block_number;
 
 public:
+    explicit ACK_Packet (const uint16_t block_number): Packet(4), block_number(block_number) {}
+    
+    std::vector<uint8_t> toByteArray() override;
 
-    explicit ACK_Packet (const u_int32_t block_number): Packet(4), block_number(block_number) {}
     std::string toString() override;
 
     ~ACK_Packet() override;
@@ -83,11 +94,13 @@ public:
 
 class ERROR_Packet : public Packet {
 private:
-    uint8_t error_code;
+    uint16_t error_code;
     std::string error_message;
 
 public:
-    explicit ERROR_Packet (const u_int8_t error_code, std::string error_message): Packet(5), error_code(error_code), error_message(std::move(error_message)) {}
+    explicit ERROR_Packet (const u_int16_t error_code, std::string error_message): Packet(5), error_code(error_code), error_message(std::move(error_message)) {}
+
+    std::vector<uint8_t> toByteArray() override;
 
     std::string toString() override;
 

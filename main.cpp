@@ -5,13 +5,17 @@
 #include "TFTP_Connection.h"
 #include "utils/TFTP_Utils.h"
 #include "utils/UDP_Utils.h"
+#include <filesystem>
 
 /**
 * Manages the creation and handling of sending a file to a tftp client.
 * @param file_path Path to the file that is to be sent.
 */
 int client_wrapper(char *argv[]) {
-    auto connection_state = new TFTP_Connection("EXAMPLE_FILE", "netascii", 0);
+
+    auto path = std::filesystem::canonical(argv[2]);
+
+    auto connection_state = new TFTP_Connection(path, "netascii", 0);
 
     int client_fd = connection_state->start_transmission_client(utils::WRITE_TRANSMISSION, 10070);
 
@@ -29,7 +33,8 @@ int server_wrapper() {
 
 int main(int argc, char *argv[]) {
     //TODO: improve parsing of cmd line arguments
-    if (const std::string mode = argv[1]; mode == "send") {
+    const std::string mode = argv[1];
+    if (mode == "send") {
         client_wrapper(argv);
     } else if (mode == "receive") {
         server_wrapper();

@@ -124,27 +124,33 @@ std::string TFTP_Connection::perform_connection_establishment_server(const int s
 
     utils::UDP_Utils::send_udp_message(socket_fd, response_packet, 10070, "127.0.0.1");
 
-    return std::string(receive_buffer.begin(), receive_buffer.end());
+    return std::string("test");
 }
 
 void TFTP_Connection::perform_write_transmission(const int sender_socket_fd,
                                                  const std::string &receiver_ip, const uint16_t receiver_port)
 {
-    bool data_available = true;
-
-    std::string data = "TEST_DATA_STRING";
+    
+    std::vector<uint8_t> data = utils::TFTP_Utils::read_file_to_byte_array(this->file_name);
 
     char receive_buffer[utils::UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE];
-
+    
+    bool data_available = true;
+    auto chunk_iterator = data.begin();
     while (data_available)
     {
-        u_int16_t block_number = get_block_number() + 1;
 
+        //get next data chunk
+        auto chunk_end = std::min(chunk_iterator + utils::UDP_PROTOCOL_PARAMETERS::MESSAGE_CHUNK_SIZE-1, data.end());
+        std::vector<uint8_t> chunk(chunk_iterator, chunk_end); 
+        chunk_iterator = chunk_end;
+        
         // build the packet for transmission
-        Packet *data_packet = new DATA_Packet(block_number, data);
-
+        u_int16_t block_number = get_block_number() + 1;
+        Packet *data_packet = new DATA_Packet(block_number, chunk);
         this->set_block_number(block_number);
 
+        //TODO: remove retransmission, the standard says to send an error packet after timeout
         for (int i = 0; i < utils::MAXIMUM_RETRANSMISSION_COUNTER; i++)
         {
             std::vector<uint8_t> packet = data_packet->toByteArray();
@@ -172,8 +178,11 @@ void TFTP_Connection::perform_write_transmission(const int sender_socket_fd,
 
         printf("ACK Message from Server : %s\n", receive_buffer);
 
-        // read new data and set data_available accordingly
-        data_available = false;
+        // check if theres more data to be sent, if not end the transmission
+        if(chunk_iterator== data.end())
+        {
+            data_available = false;
+        }
     }
 }
 
@@ -217,7 +226,7 @@ void TFTP_Connection::ack_write_transmission(int socket_fd)
             // opcode is 5 -> received packet is error packet
 
             std::string error_message("Received error packet during write transmission! \n Received error message: " + std::string(buffer.begin() + 4, buffer.end()) + "\n");
-            printf(error_message.c_str());
+            std::cout << error_message << std::endl;
             exit(block_number);
         }
         else

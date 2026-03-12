@@ -15,7 +15,8 @@ namespace utils {
         TIMEOUT_SECONDS = 5,
         TIMEOUT_MICROSECONDS = 0,
         MESSAGE_BUFFER_SIZE = 1024,
-        MAXIMUM_RETRANSMISSION_COUNTER = 10
+        MAXIMUM_RETRANSMISSION_COUNTER = 10,
+        MESSAGE_CHUNK_SIZE = 512
     };
 
     class UDP_Utils {

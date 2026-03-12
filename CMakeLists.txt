@@ -7,8 +7,10 @@ add_executable(tftp main.cpp
         utils/UDP_Utils.cpp
         utils/UDP_Utils.h
         utils/TFTP_Utils.h
+        utils/TFTP_Utils.cpp
         Packet.cpp
         Packet.h
         TFTP_Connection.cpp
         TFTP_Connection.h
+        main.cpp
 )

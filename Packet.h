@@ -67,9 +67,9 @@ public:
 class DATA_Packet : public Packet {
 private:
     uint32_t block_number;
-    std::string block_data;
+    std::vector<uint8_t> block_data;
 public:
-    explicit DATA_Packet (const uint16_t block_number, std::string block_data): Packet(3), block_number(block_number), block_data(std::move(block_data)) {}
+    explicit DATA_Packet (const uint16_t block_number, std::vector<uint8_t> block_data): Packet(3), block_number(block_number), block_data(std::move(block_data)) {}
 
     std::vector<uint8_t> toByteArray() override;
 

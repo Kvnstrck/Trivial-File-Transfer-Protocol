@@ -70,10 +70,7 @@ std::vector<uint8_t> WREQ_Packet::toByteArray()
 }
 
 std::string DATA_Packet::toString() {
-    const std::string padded_block_number = (block_number < 256)
-                                                ? "0" + std::to_string(block_number)
-                                                : std::to_string(block_number);
-    return std::to_string(this->opcode) + padded_block_number; // + this->block_data;
+    return std::to_string(this->opcode) + std::to_string(this->block_number); // + this->block_data;
 }
 
 std::vector<uint8_t> DATA_Packet::toByteArray() {

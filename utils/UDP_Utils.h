@@ -30,7 +30,7 @@ namespace utils {
          * Waits for an incoming UDP message and returns the client information
          * @return The number of bytes received.
          */
-        static u_int16_t receive_udp_message(int socket_fd, char *buffer);
+        static std::vector<uint8_t> receive_udp_message(int socket_fd);
 
         /**
          * Send a message via UDP to the specified IPv4/port combination.

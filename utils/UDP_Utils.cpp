@@ -58,7 +58,7 @@ namespace utils
      * @param buffer The buffer to write the received message into.
      * @return The socket information of the datagram sender.
      */
-    u_int16_t UDP_Utils::receive_udp_message(const int socket_fd, char *buffer)
+    std::vector<uint8_t> UDP_Utils::receive_udp_message(const int socket_fd)
     {
         // create an object for client information
         sockaddr_in client_information = {};
@@ -74,6 +74,8 @@ namespace utils
         {
             throw std::runtime_error("Failed to set socket timeout");
         }
+
+        uint8_t buffer[UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE];
 
         // wait for the UDP packet to arrive and write it in the buffer
         const ssize_t n = recvfrom(socket_fd, buffer, UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE,
@@ -93,7 +95,9 @@ namespace utils
         // add string terminator to buffer
         buffer[n] = '\0';
 
-        return n;
+        std::vector<uint8_t> message(buffer, buffer + n);
+
+        return message;
     }
 
     /**

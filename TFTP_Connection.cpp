@@ -87,9 +87,10 @@ std::string TFTP_Connection::perform_connection_establishment_client(
         utils::UDP_Utils::send_udp_message(socket_fd, packet, receiver_port, receiver_ip.c_str());
 
         // TODO: clean logging
+        std::vector<uint8_t> receive_buffer;
         try
         {
-            utils::UDP_Utils::receive_udp_message(socket_fd, receive_buffer);
+            receive_buffer = utils::UDP_Utils::receive_udp_message(socket_fd);
             auto end = std::chrono::system_clock::now();
             std::time_t end_time = std::chrono::system_clock::to_time_t(end);
             std::cout << "package received at: " << std::ctime(&end_time);
@@ -105,19 +106,14 @@ std::string TFTP_Connection::perform_connection_establishment_client(
         break;
     }
 
-    // TODO: check if the message was actually the one predicted
-
-    printf("Message from Server : %s\n", receive_buffer);
-
     return std::string(receive_buffer);
 }
 
 std::string TFTP_Connection::perform_connection_establishment_server(const int socket_fd) const
 {
-    // create buffer for UDP data to be put into
-    char buffer[utils::UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE];
+    std::vector<uint8_t> receive_buffer = utils::UDP_Utils::receive_udp_message(socket_fd);
 
-    utils::UDP_Utils::receive_udp_message(socket_fd, buffer);
+    //TODO: check that the received message is a valid read/write request, otherwise throw error
 
     // force timeout
     // sleep(10);
@@ -128,8 +124,7 @@ std::string TFTP_Connection::perform_connection_establishment_server(const int s
 
     utils::UDP_Utils::send_udp_message(socket_fd, response_packet, 10070, "127.0.0.1");
 
-    printf("Message from Client: %s\n", buffer);
-    return std::string(buffer);
+    return std::string(receive_buffer.begin(), receive_buffer.end());
 }
 
 void TFTP_Connection::perform_write_transmission(const int sender_socket_fd,
@@ -159,7 +154,7 @@ void TFTP_Connection::perform_write_transmission(const int sender_socket_fd,
             // TODO: clean logging
             try
             {
-                utils::UDP_Utils::receive_udp_message(sender_socket_fd, receive_buffer);
+                utils::UDP_Utils::receive_udp_message(sender_socket_fd);
                 auto end = std::chrono::system_clock::now();
                 std::time_t end_time = std::chrono::system_clock::to_time_t(end);
                 std::cout << "ACK package received at: " << std::ctime(&end_time);
@@ -186,35 +181,25 @@ void TFTP_Connection::ack_write_transmission(int socket_fd)
 {
     // create buffer for UDP data to be put into
 
-    // TODO: clear buffer after every message exchange
-    char buffer[utils::UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE];
+    std::vector<uint8_t> buffer(utils::UDP_PROTOCOL_PARAMETERS::MESSAGE_BUFFER_SIZE);
 
     bool data_available = true;
     while (data_available)
     {
-        const u_int16_t number_of_received_bytes = utils::UDP_Utils::receive_udp_message(socket_fd, buffer);
+        std::vector<uint8_t> buffer = utils::UDP_Utils::receive_udp_message(socket_fd);
 
-        char received_packet[520];
-        std::memcpy(received_packet, buffer, number_of_received_bytes);
+        u_int16_t opcode = static_cast<u_int16_t>(buffer.at(0))<<8 | buffer.at(1);
+        uint16_t block_number = static_cast<uint16_t>(buffer.at(2))<<8 | buffer.at(3);
 
-        // check if the received packet was a data or error packet
-        u_int16_t intData[sizeof received_packet];
-        memcpy(intData, received_packet, sizeof received_packet);
-
-        const u_int16_t opcode = intData[0];
-        printf("opcode was %i", opcode);
+        printf("Received Opcode: %d\n", opcode);
+        printf("Received Block Number: %d\n", block_number);
 
         if (opcode == 3)
         {
             // opcode is 3 -> received packet is data packet
 
             // set the number of the received block
-            set_block_number(intData[1]);
-
-            // if the number of bytes is greater than 512 bytes of data, there is still another packet coming
-            char message[512];
-            std::memcpy(message, received_packet + 4, 512);
-            printf("Message from Client: %s\n", message);
+            set_block_number(block_number);
 
             Packet *connection_response = new ACK_Packet(get_block_number());
 
@@ -222,7 +207,7 @@ void TFTP_Connection::ack_write_transmission(int socket_fd)
 
             utils::UDP_Utils::send_udp_message(socket_fd, response_packet, 10070, "127.0.0.1");
 
-            if (number_of_received_bytes - 4 < 512)
+            if (buffer.size() - 4 < 512)
             {
                 data_available = false;
             }
@@ -231,16 +216,16 @@ void TFTP_Connection::ack_write_transmission(int socket_fd)
         {
             // opcode is 5 -> received packet is error packet
 
-            // TODO: retransmit
+            std::string error_message("Received error packet during write transmission! \n Received error message: " + std::string(buffer.begin() + 4, buffer.end()) + "\n");
+            printf(error_message.c_str());
+            exit(block_number);
         }
         else
-        {
-            // opcode is not valid, throw error
+        {    
+            // received packet is invalid, throw error
+            std::string error_message = "Received invalid opcode during write transmission! \n Expected block number: " + std::to_string(get_block_number()+1) + " Received opcode: " + std::to_string(opcode)+"\n";
+            throw std::runtime_error(error_message);
         }
-
-        printf("Received Message from Client: %s\n", buffer);
-
-        // TODO: set data_available to false if incoming packet had less than 512 bytes of data
     }
 }
 

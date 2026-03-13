@@ -12,8 +12,8 @@ namespace utils {
      * This enum holds all parameters for UDP sockets and their utils.
      */
     enum UDP_PROTOCOL_PARAMETERS {
-        TIMEOUT_SECONDS = 5,
-        TIMEOUT_MICROSECONDS = 0,
+        TIMEOUT_MICROSECONDS = 5000000, // 5 seconds
+        TIMEOUT_PRE_CONNECTION_ESTABLISHMENT_MICROSECONDS = 600000000, // 10 minutes
         MESSAGE_BUFFER_SIZE = 1024,
         MAXIMUM_RETRANSMISSION_COUNTER = 10,
         MESSAGE_CHUNK_SIZE = 512
@@ -29,9 +29,11 @@ namespace utils {
 
         /**
          * Waits for an incoming UDP message and returns the client information
+         * @param socket_fd The socket file descriptor of the UDP socket used to receive the message.
+         * @param timeout_period The timeout period in microseconds after which a timeout error is thrown if no message is received.
          * @return The number of bytes received.
          */
-        static std::vector<uint8_t> receive_udp_message(int socket_fd);
+        static std::vector<uint8_t> receive_udp_message(int socket_fd, int timeout_period);
 
         /**
          * Send a message via UDP to the specified IPv4/port combination.

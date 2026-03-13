@@ -58,16 +58,20 @@ namespace utils
      * @param buffer The buffer to write the received message into.
      * @return The socket information of the datagram sender.
      */
-    std::vector<uint8_t> UDP_Utils::receive_udp_message(const int socket_fd)
+    std::vector<uint8_t> UDP_Utils::receive_udp_message(const int socket_fd, const int timeout_period)
     {
         // create an object for client information
         sockaddr_in client_information = {};
         socklen_t client_information_length = sizeof(client_information);
 
+        // get seconds part of timeout period
+        int timeout_seconds = timeout_period / 1000000;
+        int timeout_microseconds = timeout_period % 1000000;
+
         // prepare socket options for timeout handling
         struct timeval timeout_parameters{};
-        timeout_parameters.tv_sec = static_cast<int>(UDP_PROTOCOL_PARAMETERS::TIMEOUT_SECONDS);
-        timeout_parameters.tv_usec = static_cast<int>(UDP_PROTOCOL_PARAMETERS::TIMEOUT_MICROSECONDS);
+        timeout_parameters.tv_sec = static_cast<int>(timeout_seconds);
+        timeout_parameters.tv_usec = static_cast<int>(timeout_microseconds);
 
         // enable the timeout option for socket, throw error if syscall fails
         if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout_parameters, sizeof(timeout_parameters)) < 0)

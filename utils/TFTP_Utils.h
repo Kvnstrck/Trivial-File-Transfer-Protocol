@@ -29,7 +29,6 @@ namespace utils
     public:
         static std::vector<uint8_t> read_file_to_byte_array(const std::string &file_path);
     };
-    // TODO: create method that converts binary to the various transition modes for data payload building
 
 }
 #endif // TFTP_UTILS_H

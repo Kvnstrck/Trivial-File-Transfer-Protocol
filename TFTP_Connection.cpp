@@ -90,7 +90,7 @@ std::string TFTP_Connection::perform_connection_establishment_client(
         std::vector<uint8_t> receive_buffer;
         try
         {
-            receive_buffer = utils::UDP_Utils::receive_udp_message(socket_fd);
+            receive_buffer = utils::UDP_Utils::receive_udp_message(socket_fd,utils::TIMEOUT_MICROSECONDS);
             auto end = std::chrono::system_clock::now();
             std::time_t end_time = std::chrono::system_clock::to_time_t(end);
             std::cout << "package received at: " << std::ctime(&end_time);
@@ -111,12 +111,9 @@ std::string TFTP_Connection::perform_connection_establishment_client(
 
 std::string TFTP_Connection::perform_connection_establishment_server(const int socket_fd) const
 {
-    std::vector<uint8_t> receive_buffer = utils::UDP_Utils::receive_udp_message(socket_fd);
+    std::vector<uint8_t> receive_buffer = utils::UDP_Utils::receive_udp_message(socket_fd,utils::UDP_PROTOCOL_PARAMETERS::TIMEOUT_PRE_CONNECTION_ESTABLISHMENT_MICROSECONDS);
 
     //TODO: check that the received message is a valid read/write request, otherwise throw error
-
-    // force timeout
-    // sleep(10);
 
     Packet *connection_response = new ACK_Packet(get_block_number());
 
@@ -160,7 +157,7 @@ void TFTP_Connection::perform_write_transmission(const int sender_socket_fd,
             // TODO: clean logging
             try
             {
-                utils::UDP_Utils::receive_udp_message(sender_socket_fd);
+                utils::UDP_Utils::receive_udp_message(sender_socket_fd,utils::UDP_PROTOCOL_PARAMETERS::TIMEOUT_MICROSECONDS);
                 auto end = std::chrono::system_clock::now();
                 std::time_t end_time = std::chrono::system_clock::to_time_t(end);
                 std::cout << "ACK package received at: " << std::ctime(&end_time);
@@ -175,8 +172,6 @@ void TFTP_Connection::perform_write_transmission(const int sender_socket_fd,
             }
             break;
         }
-
-        printf("ACK Message from Server : %s\n", receive_buffer);
 
         // check if theres more data to be sent, if not end the transmission
         if(chunk_iterator== data.end())
@@ -195,7 +190,7 @@ void TFTP_Connection::ack_write_transmission(int socket_fd)
     bool data_available = true;
     while (data_available)
     {
-        std::vector<uint8_t> buffer = utils::UDP_Utils::receive_udp_message(socket_fd);
+        std::vector<uint8_t> buffer = utils::UDP_Utils::receive_udp_message(socket_fd,utils::UDP_PROTOCOL_PARAMETERS::TIMEOUT_MICROSECONDS);
 
         u_int16_t opcode = static_cast<u_int16_t>(buffer.at(0))<<8 | buffer.at(1);
         uint16_t block_number = static_cast<uint16_t>(buffer.at(2))<<8 | buffer.at(3);

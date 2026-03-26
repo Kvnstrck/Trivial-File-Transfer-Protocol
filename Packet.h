@@ -7,8 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include "TFTP_Connection.h"
-
 class Packet {
 private:
 

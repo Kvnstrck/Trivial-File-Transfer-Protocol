@@ -10,7 +10,11 @@ add_executable(tftp main.cpp
         utils/TFTP_Utils.cpp
         Packet.cpp
         Packet.h
-        TFTP_Connection.cpp
-        TFTP_Connection.h
+        Connection_Endpoints/Connection_Endpoint_Client.cpp
+        Connection_Endpoints/Connection_Endpoint_Client.h
+        Connection_Endpoints/Connection_Endpoint_Server.cpp
+        Connection_Endpoints/Connection_Endpoint_Server.h
+        Connection_Endpoints/Connection_Endpoint.cpp
+        Connection_Endpoints/Connection_Endpoint.h
         main.cpp
 )

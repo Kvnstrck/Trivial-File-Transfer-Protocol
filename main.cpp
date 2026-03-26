@@ -1,8 +1,8 @@
 #include <iostream>
 #include <unistd.h>
 
-
-#include "TFTP_Connection.h"
+#include "Connection_Endpoints/Connection_Endpoint_Client.h"
+#include "Connection_Endpoints/Connection_Endpoint_Server.h"
 #include "utils/TFTP_Utils.h"
 #include "utils/UDP_Utils.h"
 #include <filesystem>
@@ -15,18 +15,17 @@ int client_wrapper(char *argv[]) {
 
     auto path = std::filesystem::canonical(argv[2]);
 
-    auto connection_state = new TFTP_Connection(path, "netascii", 0);
+    auto connection_state = new Connection_Endpoint_Client(path.string(), "netascii", 0);
 
-    int client_fd = connection_state->start_transmission_client(utils::WRITE_TRANSMISSION, 10070);
+    int client_fd = connection_state->start_transmission(utils::WRITE_TRANSMISSION, 10070);
 
-    free(connection_state);
     return 0;
 }
 
 int server_wrapper() {
-    const auto connection_state = new TFTP_Connection("FILE_NOT_SET", "TRANSMISSION_MODE_NOT_SET", 0);
+    const auto connection_state = new Connection_Endpoint_Server("FILE_NOT_SET", "TRANSMISSION_MODE_NOT_SET", 0);
 
-    int server_fd = connection_state->start_transmission_server();
+    int server_fd = connection_state->start_transmission();
 
     return 0;
 }
